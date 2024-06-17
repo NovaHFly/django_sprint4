@@ -128,3 +128,29 @@ class Post(Publishable, ContainsCreateDate):
 
     def __str__(self) -> str:
         return f'{self.pub_date} - {self.title}'
+
+
+class Comment(Publishable, ContainsCreateDate):
+    text = models.TextField(verbose_name='Текст')
+    pub_date = models.DateTimeField(
+        verbose_name='Дата и время публикации',
+        auto_now_add=True,
+    )
+    author = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='comments',
+        verbose_name='Автор комментария',
+    )
+    post = models.ForeignKey(
+        Post,
+        on_delete=models.CASCADE,
+        related_name='comments',
+        verbose_name='Публикация',
+    )
+
+    class Meta:
+        verbose_name = 'комментарий'
+        verbose_name_plural = 'Комментарии'
+        ordering = ('-pub_date',)
