@@ -75,7 +75,6 @@ class Location(Publishable, ContainsCreateDate):
 
 class Post(Publishable, ContainsCreateDate):
     """A single post."""
-    # TODO: Add images
 
     title = models.CharField(
         max_length=256,
@@ -112,6 +111,12 @@ class Post(Publishable, ContainsCreateDate):
         null=True,
         related_name='posts',
         verbose_name='Категория',
+    )
+
+    image = models.ImageField(
+        'Фото',
+        blank=True,
+        upload_to='post_images',
     )
 
     objects = PostQuerySet.as_manager()
