@@ -3,8 +3,8 @@ from django.db import models
 from django.utils import timezone
 
 from core.models import (
-    DateCreatedModel,
-    PublishedModel,
+    ContainsCreateDate,
+    Publishable,
 )
 
 User = get_user_model()
@@ -32,7 +32,7 @@ class PostQuerySet(models.QuerySet):
         return self.select_related('author', 'category', 'location')
 
 
-class Category(PublishedModel, DateCreatedModel):
+class Category(Publishable, ContainsCreateDate):
     """Category of posts by the same theme."""
 
     title = models.CharField(
@@ -57,7 +57,7 @@ class Category(PublishedModel, DateCreatedModel):
         return self.title
 
 
-class Location(PublishedModel, DateCreatedModel):
+class Location(Publishable, ContainsCreateDate):
     """Some landmark."""
 
     name = models.CharField(
@@ -73,8 +73,9 @@ class Location(PublishedModel, DateCreatedModel):
         return self.name
 
 
-class Post(PublishedModel, DateCreatedModel):
+class Post(Publishable, ContainsCreateDate):
     """A single post."""
+    # TODO: Add images
 
     title = models.CharField(
         max_length=256,
