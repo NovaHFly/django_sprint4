@@ -119,6 +119,11 @@ class Post(Publishable, ContainsCreateDate):
         upload_to='post_images',
     )
 
+    @property
+    def comment_count(self) -> int:
+        """Count of comments under this post."""
+        return self.comments.count()
+
     objects = PostQuerySet.as_manager()
 
     class Meta:
