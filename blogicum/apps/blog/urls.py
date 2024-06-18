@@ -24,7 +24,9 @@ posts_patterns = [
         lambda x: HttpResponse('Create new post!'),
         name='create_post',
     ),
-    path('posts/<int:post_id>/', views.post_detail, name='post_detail'),
+    path(
+        'posts/<int:pk>/', views.PostDetail.as_view(), name='post_detail'
+    ),
     path(
         'posts/<int:post_id>/edit_post/',
         lambda x, post_id: HttpResponse(f'Edit post {post_id}'),
@@ -60,7 +62,7 @@ comment_patterns = [
 ]
 
 urlpatterns = [
-    path('', views.index, name='index'),
+    path('', views.Index.as_view(), name='index'),
     path(
         'category/<slug:category_slug>/',
         views.category_posts,

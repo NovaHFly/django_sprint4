@@ -1,9 +1,12 @@
+from typing import Any
+
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, render
+from django.views.generic import DetailView, ListView
 
-from blog.forms import ProfileForm
+from blog.forms import CommentForm, ProfileForm
 from blog.models import Category, Post
 
 User = get_user_model()
@@ -36,20 +39,27 @@ def edit_profile(request: HttpRequest) -> HttpResponse:
     )
 
 
-def index(request: HttpRequest) -> HttpResponse:
-    """Show project main page.
-
-    Args:
-        request (HttpRequest): Request received from the user.
-    """
-    template = 'blog/index.html'
-
-    posts = Post.objects.select_all_related().get_published_posts()[:5]
-    context = {'post_list': posts}
-    return render(request, template, context)
+class Index(ListView):
+    model = Post
+    ordering = '-pub_date'
+    paginate_by = 10
+    template_name = 'blog/index.html'
+    queryset = Post.objects.select_all_related().get_published_posts()
 
 
-def post_detail(request: HttpRequest, id: int) -> HttpResponse:  # noqa: A002
+class PostDetail(DetailView):
+    model = Post
+    queryset = Post.objects.get_published_posts()
+    template_name = 'blog/detail.html'
+
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        context['form'] = CommentForm()
+        context['comments'] = self.object.comments.select_related('author')
+        return context
+
+
+def post_detail(request: HttpRequest, post_id: int) -> HttpResponse:  # noqa: A002
     """Show post content.
 
     Args:
@@ -59,7 +69,7 @@ def post_detail(request: HttpRequest, id: int) -> HttpResponse:  # noqa: A002
     template = 'blog/detail.html'
     required_post = get_object_or_404(
         Post.objects.select_all_related().get_published_posts(),
-        pk=id,
+        pk=post_id,
     )
 
     context = {'post': required_post}
