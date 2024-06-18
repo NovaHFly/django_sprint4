@@ -20,15 +20,15 @@ profile_patterns = [
 
 posts_patterns = [
     path(
+        'posts/<int:post_id>/', views.PostDetail.as_view(), name='post_detail'
+    ),
+    path(
         'posts/create/',
         lambda x: HttpResponse('Create new post!'),
         name='create_post',
     ),
     path(
-        'posts/<int:pk>/', views.PostDetail.as_view(), name='post_detail'
-    ),
-    path(
-        'posts/<int:post_id>/edit_post/',
+        'posts/<int:post_id>/edit/',
         lambda x, post_id: HttpResponse(f'Edit post {post_id}'),
         name='edit_post',
     ),
@@ -42,7 +42,7 @@ posts_patterns = [
 comment_patterns = [
     path(
         'posts/<int:post_id>/comment/',
-        lambda x, post_id: HttpResponse(f'Add comment to post {post_id}'),
+        views.add_comment,
         name='add_comment',
     ),
     path(

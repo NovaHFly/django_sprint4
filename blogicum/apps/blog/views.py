@@ -4,7 +4,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.db.models.query import QuerySet
 from django.http import HttpRequest, HttpResponse
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.views.generic import DetailView, ListView
 
 from blog.forms import CommentForm, ProfileForm
@@ -24,6 +24,7 @@ class PostDetail(DetailView):
     model = Post
     queryset = Post.objects.get_published_posts()
     template_name = 'blog/detail.html'
+    pk_url_kwarg = 'post_id'
 
     def get_context_data(self, **kwargs) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
@@ -38,7 +39,7 @@ class ViewProfile(ListView):
     template_name = 'blog/profile.html'
 
     def get_queryset(self) -> QuerySet[Any]:
-        return Post.objects.select_all_related().filter(
+        return super().get_queryset().select_all_related().filter(
             author__username=self.kwargs['username']
         )
 
@@ -85,3 +86,17 @@ def category_posts(request: HttpRequest, category_slug: str) -> HttpResponse:
     posts = category.posts.select_all_related().get_published_posts()
     context = {'category': category.title, 'post_list': posts}
     return render(request, template, context)
+
+
+@login_required
+def add_comment(request: HttpRequest, post_id: int) -> HttpResponse:
+    post = get_object_or_404(Post, pk=post_id)
+
+    form = CommentForm(request.POST)
+    if form.is_valid():
+        comment = form.save(commit=False)
+        comment.author = request.user
+        comment.post = post
+        comment.save()
+
+    return redirect('blog:post_detail', post_id=post_id)
