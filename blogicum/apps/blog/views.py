@@ -2,15 +2,28 @@ from typing import Any
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import UserPassesTestMixin
 from django.db.models.query import QuerySet
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
-from django.views.generic import DetailView, ListView
+from django.urls import reverse_lazy
+from django.views.generic import (
+    CreateView,
+    DeleteView,
+    DetailView,
+    ListView,
+    UpdateView,
+)
 
-from blog.forms import CommentForm, ProfileForm
+from blog.forms import CommentForm, PostForm, ProfileForm
 from blog.models import Category, Post
 
 User = get_user_model()
+
+
+class OnlyAuthorMixin(UserPassesTestMixin):
+    def test_func(self) -> bool | None:
+        return self.get_object().author == self.request.user
 
 
 class Index(ListView):
@@ -33,14 +46,61 @@ class PostDetail(DetailView):
         return context
 
 
+class CreatePost(CreateView):
+    model = Post
+    template_name = 'blog/create.html'
+    form_class = PostForm
+
+    def get_success_url(self) -> str:
+        return reverse_lazy(
+            'blog:profile', kwargs={'username': self.request.user.username}
+        )
+
+    def form_valid(self, form: PostForm) -> HttpResponse:
+        form.instance.author = self.request.user
+        return super().form_valid(form)
+
+
+class EditPost(OnlyAuthorMixin, UpdateView):
+    model = Post
+    template_name = 'blog/create.html'
+    form_class = PostForm
+    pk_url_kwarg = 'post_id'
+
+    def get_success_url(self) -> str:
+        return reverse_lazy(
+            'blog:post_detail', kwargs={'post_id': self.kwargs['post_id']}
+        )
+
+
+class DeletePost(OnlyAuthorMixin, DeleteView):
+    model = Post
+    template_name = 'blog/create.html'
+    pk_url_kwarg = 'post_id'
+    context_object_name = 'form.instance'
+
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        context['form'] = PostForm(instance=self.object)
+        return context
+
+    def get_success_url(self) -> str:
+        return reverse_lazy(
+            'blog:profile', kwargs={'username': self.request.user.username}
+        )
+
+
 class ViewProfile(ListView):
     model = Post
     paginate_by = 10
     template_name = 'blog/profile.html'
 
     def get_queryset(self) -> QuerySet[Any]:
-        return super().get_queryset().select_all_related().filter(
-            author__username=self.kwargs['username']
+        return (
+            super()
+            .get_queryset()
+            .select_all_related()
+            .filter(author__username=self.kwargs['username'])
         )
 
     def get_context_data(self, **kwargs) -> dict[str, Any]:

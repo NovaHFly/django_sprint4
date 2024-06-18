@@ -20,21 +20,23 @@ profile_patterns = [
 
 posts_patterns = [
     path(
-        'posts/<int:post_id>/', views.PostDetail.as_view(), name='post_detail'
+        'posts/<int:post_id>/',
+        views.PostDetail.as_view(),
+        name='post_detail',
     ),
     path(
         'posts/create/',
-        lambda x: HttpResponse('Create new post!'),
+        views.CreatePost.as_view(),
         name='create_post',
     ),
     path(
         'posts/<int:post_id>/edit/',
-        lambda x, post_id: HttpResponse(f'Edit post {post_id}'),
+        views.EditPost.as_view(),
         name='edit_post',
     ),
     path(
         'posts/<int:post_id>/delete/',
-        lambda x, post_id: HttpResponse(f'Delete post {post_id}'),
+        views.DeletePost.as_view(),
         name='delete_post',
     ),
 ]
