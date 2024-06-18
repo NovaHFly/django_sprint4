@@ -6,6 +6,7 @@ from django.urls import include, path
 from core.views import Registration
 
 handler404 = 'core.views.page_not_found'
+handler500 = 'core.views.server_failure'
 
 urlpatterns = [
     path('', include('blog.urls')),
