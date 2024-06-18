@@ -7,14 +7,14 @@ app_name = 'blog'
 
 profile_patterns = [
     path(
-        'profile/<str:username>/',
-        lambda x, username: HttpResponse(f'Profile: {username}'),
-        name='profile',
+        'profile/edit/',
+        views.edit_profile,
+        name='edit_profile',
     ),
     path(
-        'profile/<str:username>/edit/',
-        lambda x, username: HttpResponse(f'Edit profile: {username}'),
-        name='edit_profile',
+        'profile/<str:username>/',
+        views.view_profile,
+        name='profile',
     ),
 ]
 

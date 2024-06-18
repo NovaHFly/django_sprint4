@@ -1,7 +1,33 @@
+from django.contrib.auth import get_user_model
+from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, render
 
+from blog.forms import ProfileForm
 from blog.models import Category, Post
+
+User = get_user_model()
+
+
+def view_profile(request: HttpRequest, username: str) -> HttpResponse:
+    """View user profile."""
+    profile_owner = get_object_or_404(User, username=username)
+    return render(
+        request,
+        template_name='blog/profile.html',
+        context={'profile': profile_owner},
+    )
+
+
+@login_required
+def edit_profile(request: HttpRequest) -> HttpResponse:
+    """Edit user profile."""
+    form = ProfileForm(request.POST or None, instance=request.user)
+    if form.is_valid():
+        form.save()
+    return render(
+        request, template_name='blog/user.html', context={'form': form}
+    )
 
 
 def index(request: HttpRequest) -> HttpResponse:
