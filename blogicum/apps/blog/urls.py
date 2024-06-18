@@ -13,7 +13,7 @@ profile_patterns = [
     ),
     path(
         'profile/<str:username>/',
-        views.view_profile,
+        views.ViewProfile.as_view(),
         name='profile',
     ),
 ]
