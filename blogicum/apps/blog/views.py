@@ -22,9 +22,15 @@ def view_profile(request: HttpRequest, username: str) -> HttpResponse:
 @login_required
 def edit_profile(request: HttpRequest) -> HttpResponse:
     """Edit user profile."""
-    form = ProfileForm(request.POST or None, instance=request.user)
+    current_user = request.user
+    form = ProfileForm(request.POST or None, instance=current_user)
     if form.is_valid():
         form.save()
+        return render(
+            request,
+            template_name='blog/profile.html',
+            context={'profile': current_user},
+        )
     return render(
         request, template_name='blog/user.html', context={'form': form}
     )
