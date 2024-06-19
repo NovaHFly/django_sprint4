@@ -136,11 +136,7 @@ def edit_profile(request: HttpRequest) -> HttpResponse:
 
     if form.is_valid():
         form.save()
-        return render(
-            request,
-            template_name='blog/profile.html',
-            context={'profile': current_user},
-        )
+        return redirect('blog:profile', username=form.instance.username)
 
     return render(
         request, template_name='blog/user.html', context={'form': form}
