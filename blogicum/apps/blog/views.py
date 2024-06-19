@@ -15,6 +15,7 @@ from django.views.generic import (
     UpdateView,
 )
 
+from blog.constants import POSTS_ON_PAGE
 from blog.forms import CommentForm, PostForm, ProfileForm
 from blog.mixins import OnlyAuthorMixin
 from blog.models import Category, Comment, Post
@@ -25,7 +26,7 @@ User = get_user_model()
 class Index(ListView):
     model = Post
     template_name = 'blog/index.html'
-    paginate_by = 10
+    paginate_by = POSTS_ON_PAGE
 
     def get_queryset(self) -> QuerySet[Any]:
         return super().get_queryset().select_all_related().get_published()
@@ -97,7 +98,7 @@ class DeletePost(OnlyAuthorMixin, DeleteView):
 class ViewProfile(ListView):
     model = Post
     template_name = 'blog/profile.html'
-    paginate_by = 10
+    paginate_by = POSTS_ON_PAGE
 
     def get_queryset(self) -> QuerySet[Any]:
         return (
@@ -135,7 +136,7 @@ def edit_profile(request: HttpRequest) -> HttpResponse:
 class CategoryPosts(ListView):
     model = Post
     template_name = 'blog/category.html'
-    paginate_by = 10
+    paginate_by = POSTS_ON_PAGE
 
     def get_queryset(self) -> QuerySet[Any]:
         self.category = get_object_or_404(
