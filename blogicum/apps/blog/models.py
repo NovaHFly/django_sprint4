@@ -3,7 +3,6 @@ from django.contrib.auth.base_user import AbstractBaseUser
 from django.db import models
 from django.utils import timezone
 
-from blog.validators import correct_date
 from core.models import (
     ContainsCreateDate,
     Publishable,
@@ -100,7 +99,6 @@ class Post(Publishable, ContainsCreateDate):
             'Если установить дату и время в будущем'
             ' — можно делать отложенные публикации.'
         ),
-        validators=(correct_date,),
     )
 
     author = models.ForeignKey(
