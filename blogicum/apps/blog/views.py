@@ -24,6 +24,8 @@ User = get_user_model()
 
 # Mixins
 class OnlyAuthor(UserPassesTestMixin):
+    """Mixin which restricts non-author users from accessing edit page."""
+
     def test_func(self) -> bool | None:
         return self.get_object().author == self.request.user
 
@@ -32,8 +34,8 @@ class OnlyAuthor(UserPassesTestMixin):
 
 
 class Index(ListView):
-    template_name = 'blog/index.html'
     model = Post
+    template_name = 'blog/index.html'
     paginate_by = 10
 
     def get_queryset(self) -> QuerySet[Any]:
@@ -91,7 +93,6 @@ class DeletePost(OnlyAuthor, DeleteView):
     model = Post
     template_name = 'blog/create.html'
     pk_url_kwarg = 'post_id'
-    context_object_name = 'form.instance'
 
     def get_context_data(self, **kwargs) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
@@ -105,8 +106,8 @@ class DeletePost(OnlyAuthor, DeleteView):
 
 
 class ViewProfile(ListView):
-    template_name = 'blog/profile.html'
     model = Post
+    template_name = 'blog/profile.html'
     paginate_by = 10
 
     def get_queryset(self) -> QuerySet[Any]:
@@ -147,14 +148,9 @@ def edit_profile(request: HttpRequest) -> HttpResponse:
 
 
 class CategoryPosts(ListView):
-    template_name = 'blog/category.html'
     model = Post
+    template_name = 'blog/category.html'
     paginate_by = 10
-    queryset = (
-        Post.objects.select_all_related()
-        .prefetch_related('comments')
-        .get_published()
-    )
 
     def get_queryset(self) -> QuerySet[Any]:
         self.category = get_object_or_404(
