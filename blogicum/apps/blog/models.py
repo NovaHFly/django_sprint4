@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.contrib.auth.base_user import AbstractBaseUser
 from django.db import models
 from django.utils import timezone
 
@@ -13,7 +14,13 @@ User = get_user_model()
 class PostQuerySet(models.QuerySet):
     """Custom query set for post model."""
 
-    def get_published(self) -> models.QuerySet:
+    def get_all_for_user(self, user: AbstractBaseUser) -> 'PostQuerySet':
+        """Return all posts available for user."""
+        published_posts = self.get_published()
+        author_posts = self.filter(author=user)
+        return published_posts | author_posts
+
+    def get_published(self) -> 'PostQuerySet':
         """Fetch posts which are published.
 
         Published posts are not either:
@@ -27,7 +34,7 @@ class PostQuerySet(models.QuerySet):
             pub_date__lte=timezone.now(),
         )
 
-    def select_all_related(self) -> models.QuerySet:
+    def select_all_related(self) -> 'PostQuerySet':
         """Select all foreign keys for the posts."""
         return self.select_related(
             'author', 'category', 'location'
