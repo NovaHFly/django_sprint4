@@ -17,8 +17,9 @@ class PostQuerySet(models.QuerySet):
     def get_all_for_user(self, user: AbstractBaseUser) -> 'PostQuerySet':
         """Return all posts available for user."""
         published_posts = self.get_published()
-        author_posts = self.filter(author=user)
-        return published_posts | author_posts
+        if user.is_authenticated:
+            published_posts |= self.filter(author=user)
+        return published_posts
 
     def get_published(self) -> 'PostQuerySet':
         """Fetch posts which are published.
