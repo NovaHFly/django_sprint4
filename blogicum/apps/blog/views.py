@@ -6,7 +6,6 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models.query import QuerySet
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
-from django.urls import reverse
 from django.views.generic import (
     CreateView,
     DeleteView,

@@ -2,7 +2,6 @@ from django.contrib.auth.mixins import UserPassesTestMixin
 from django.http.response import HttpResponseRedirect
 from django.shortcuts import redirect
 from django.urls import reverse
-from django.views.generic import View
 
 
 class OnlyAuthorMixin(UserPassesTestMixin):
