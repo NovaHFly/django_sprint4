@@ -21,21 +21,28 @@ from blog.models import Category, Comment, Post
 User = get_user_model()
 
 
-class OnlyAuthorMixin(UserPassesTestMixin):
+class OnlyAuthor(UserPassesTestMixin):
     def test_func(self) -> bool | None:
         return self.get_object().author == self.request.user
 
 
-class Index(ListView):
+class PostWithPagination:
     model = Post
     paginate_by = 10
+    queryset = (
+        Post.objects.select_all_related()
+        .prefetch_related('comments')
+        .get_published_posts()
+    )
+
+
+class Index(PostWithPagination, ListView):
     template_name = 'blog/index.html'
-    queryset = Post.objects.select_all_related().get_published_posts()
 
 
 class PostDetail(DetailView):
     model = Post
-    queryset = Post.objects.get_published_posts()
+    queryset = Post.objects.select_all_related().get_published_posts()
     template_name = 'blog/detail.html'
     pk_url_kwarg = 'post_id'
 
@@ -61,7 +68,7 @@ class CreatePost(CreateView):
         return super().form_valid(form)
 
 
-class EditPost(OnlyAuthorMixin, UpdateView):
+class EditPost(OnlyAuthor, UpdateView):
     model = Post
     template_name = 'blog/create.html'
     form_class = PostForm
@@ -73,7 +80,7 @@ class EditPost(OnlyAuthorMixin, UpdateView):
         )
 
 
-class DeletePost(OnlyAuthorMixin, DeleteView):
+class DeletePost(OnlyAuthor, DeleteView):
     model = Post
     template_name = 'blog/create.html'
     pk_url_kwarg = 'post_id'
@@ -90,16 +97,13 @@ class DeletePost(OnlyAuthorMixin, DeleteView):
         )
 
 
-class ViewProfile(ListView):
-    model = Post
-    paginate_by = 10
+class ViewProfile(PostWithPagination, ListView):
     template_name = 'blog/profile.html'
 
     def get_queryset(self) -> QuerySet[Any]:
         return (
             super()
             .get_queryset()
-            .select_all_related()
             .filter(author__username=self.kwargs['username'])
         )
 
@@ -131,26 +135,7 @@ def edit_profile(request: HttpRequest) -> HttpResponse:
     )
 
 
-def category_posts(request: HttpRequest, category_slug: str) -> HttpResponse:
-    """Show list of posts in a category.
-
-    Args:
-        request (HttpRequest): Request received from the user.
-        category_slug (str): Category identifier.
-    """
-    template = 'blog/category.html'
-    category = get_object_or_404(
-        Category.objects.filter(is_published=True),
-        slug=category_slug,
-    )
-    posts = category.posts.select_all_related().get_published_posts()
-    context = {'category': category.title, 'post_list': posts}
-    return render(request, template, context)
-
-
-class CategoryPosts(ListView):
-    model = Post
-    paginate_by = 10
+class CategoryPosts(PostWithPagination, ListView):
     template_name = 'blog/category.html'
 
     def get_queryset(self) -> QuerySet[Any]:
@@ -182,7 +167,7 @@ def add_comment(request: HttpRequest, post_id: int) -> HttpResponse:
     return redirect('blog:post_detail', post_id=post_id)
 
 
-class EditComment(OnlyAuthorMixin, UpdateView):
+class EditComment(OnlyAuthor, UpdateView):
     model = Comment
     template_name = 'blog/comment.html'
     form_class = CommentForm
@@ -201,7 +186,7 @@ class EditComment(OnlyAuthorMixin, UpdateView):
         )
 
 
-class DeleteComment(OnlyAuthorMixin, DeleteView):
+class DeleteComment(OnlyAuthor, DeleteView):
     model = Comment
     template_name = 'blog/comment.html'
     pk_url_kwarg = 'comment_id'
