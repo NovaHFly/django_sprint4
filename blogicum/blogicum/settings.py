@@ -8,6 +8,9 @@ TEMPLATES_DIR = BASE_DIR / 'templates'
 STATICFILES_DIRS = [BASE_DIR / 'static_dev']
 MEDIA_ROOT = BASE_DIR / 'media'
 
+EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+EMAIL_FILE_PATH = BASE_DIR / 'sent_emails'
+
 sys.path.insert(0, str(APPS_PATH))
 
 CSRF_FAILURE_VIEW = 'core.views.csrf_failure'
