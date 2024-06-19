@@ -26,7 +26,7 @@ User = get_user_model()
 class OnlyAuthor(UserPassesTestMixin):
     """Mixin which restricts non-author users from accessing edit page."""
 
-    def test_func(self) -> bool | None:
+    def test_func(self) -> bool:
         return self.get_object().author == self.request.user
 
     def handle_no_permission(self) -> HttpResponseRedirect:
