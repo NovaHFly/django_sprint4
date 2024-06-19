@@ -32,7 +32,7 @@ class PostWithPagination:
     queryset = (
         Post.objects.select_all_related()
         .prefetch_related('comments')
-        .get_published_posts()
+        .get_published()
     )
 
 
@@ -42,7 +42,7 @@ class Index(PostWithPagination, ListView):
 
 class PostDetail(DetailView):
     model = Post
-    queryset = Post.objects.select_all_related().get_published_posts()
+    queryset = Post.objects.select_all_related().get_published()
     template_name = 'blog/detail.html'
     pk_url_kwarg = 'post_id'
 

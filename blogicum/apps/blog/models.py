@@ -13,7 +13,7 @@ User = get_user_model()
 class PostQuerySet(models.QuerySet):
     """Custom query set for post model."""
 
-    def get_published_posts(self) -> models.QuerySet:
+    def get_published(self) -> models.QuerySet:
         """Fetch posts which are published.
 
         Published posts are not either:
@@ -29,7 +29,9 @@ class PostQuerySet(models.QuerySet):
 
     def select_all_related(self) -> models.QuerySet:
         """Select all foreign keys for the posts."""
-        return self.select_related('author', 'category', 'location')
+        return self.select_related(
+            'author', 'category', 'location'
+        ).prefetch_related('comments')
 
 
 class Category(Publishable, ContainsCreateDate):
