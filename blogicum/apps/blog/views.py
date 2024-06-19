@@ -148,6 +148,26 @@ def category_posts(request: HttpRequest, category_slug: str) -> HttpResponse:
     return render(request, template, context)
 
 
+class CategoryPosts(ListView):
+    model = Post
+    paginate_by = 10
+    template_name = 'blog/category.html'
+
+    def get_queryset(self) -> QuerySet[Any]:
+        return (
+            super()
+            .get_queryset()
+            .filter(category__slug=self.kwargs['category_slug'])
+        )
+
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        context['category'] = get_object_or_404(
+            Category, slug=self.kwargs['category_slug']
+        )
+        return context
+
+
 @login_required
 def add_comment(request: HttpRequest, post_id: int) -> HttpResponse:
     post = get_object_or_404(Post, pk=post_id)

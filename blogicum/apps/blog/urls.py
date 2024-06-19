@@ -63,7 +63,7 @@ urlpatterns = [
     path('', views.Index.as_view(), name='index'),
     path(
         'category/<slug:category_slug>/',
-        views.category_posts,
+        views.CategoryPosts.as_view(),
         name='category_posts',
     ),
     *profile_patterns,
