@@ -1,22 +1,9 @@
-from django.http import HttpRequest, HttpResponse
-from django.shortcuts import render
+from django.views.generic import TemplateView
 
 
-def about(request: HttpRequest) -> HttpResponse:
-    """Show page with info about the project.
-
-    Args:
-        request (HttpRequest): Request received from the user.
-    """
-    template = 'pages/about.html'
-    return render(request, template)
+class About(TemplateView):
+    template_name = 'pages/about.html'
 
 
-def rules(request: HttpRequest) -> HttpResponse:
-    """Show page with rules.
-
-    Args:
-        request (HttpRequest): Request received from the user.
-    """
-    template = 'pages/rules.html'
-    return render(request, template)
+class Rules(TemplateView):
+    template_name = 'pages/rules.html'
