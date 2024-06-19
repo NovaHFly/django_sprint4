@@ -13,7 +13,7 @@ EMAIL_FILE_PATH = BASE_DIR / 'sent_emails'
 
 sys.path.insert(0, str(APPS_PATH))
 
-CSRF_FAILURE_VIEW = 'core.views.csrf_failure'
+CSRF_FAILURE_VIEW = 'pages.views.csrf_failure'
 
 LOGIN_REDIRECT_URL = 'blog:index'
 LOGIN_URL = 'login'
@@ -23,7 +23,7 @@ LOGIN_URL = 'login'
 SECRET_KEY = 'django-insecure-!7*@)^5s61(g95-10$1e2z(hkr55xgho@4y*r@0(s#un@izt+-'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# DEBUG = False
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 

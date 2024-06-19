@@ -5,8 +5,8 @@ from django.urls import include, path
 
 from core.views import Registration
 
-handler404 = 'core.views.page_not_found'
-handler500 = 'core.views.server_failure'
+handler404 = 'pages.views.page_not_found'
+handler500 = 'pages.views.server_failure'
 
 urlpatterns = [
     path('', include('blog.urls')),

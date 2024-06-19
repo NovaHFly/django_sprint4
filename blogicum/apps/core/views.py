@@ -17,18 +17,3 @@ class Registration(CreateView):
         login(self.request, user)
 
         return redirect(self.success_url)
-
-
-def page_not_found(request: HttpRequest, exception: Exception) -> HttpResponse:
-    """View for 404 page."""
-    return render(request, 'pages/404.html', status=404)
-
-
-def server_failure(request: HttpRequest) -> HttpResponse:
-    """View for 500 page."""
-    return render(request, 'pages/500.html', status=500)
-
-
-def csrf_failure(request: HttpRequest, reason: str = '') -> HttpResponse:
-    """View for 403 page when csrf check fails."""
-    return render(request, 'pages/403csrf.html', status=403)
