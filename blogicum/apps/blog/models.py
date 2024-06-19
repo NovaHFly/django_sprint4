@@ -137,10 +137,6 @@ class Post(Publishable, ContainsCreateDate):
 
 class Comment(Publishable, ContainsCreateDate):
     text = models.TextField(verbose_name='Текст')
-    pub_date = models.DateTimeField(
-        verbose_name='Дата и время публикации',
-        auto_now_add=True,
-    )
     author = models.ForeignKey(
         User,
         on_delete=models.SET_NULL,
@@ -158,4 +154,4 @@ class Comment(Publishable, ContainsCreateDate):
     class Meta:
         verbose_name = 'комментарий'
         verbose_name_plural = 'Комментарии'
-        ordering = ('-pub_date',)
+        ordering = ('-created_at',)
