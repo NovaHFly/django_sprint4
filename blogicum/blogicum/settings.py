@@ -3,7 +3,7 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 APPS_PATH = BASE_DIR / 'apps'
-TEMPLATES_PATH = BASE_DIR / 'templates'
+TEMPLATES_DIR = BASE_DIR / 'templates'
 
 STATICFILES_DIRS = [BASE_DIR / 'static_dev']
 MEDIA_ROOT = BASE_DIR / 'media'
@@ -66,7 +66,7 @@ ROOT_URLCONF = 'blogicum.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [TEMPLATES_PATH],
+        'DIRS': [TEMPLATES_DIR],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
