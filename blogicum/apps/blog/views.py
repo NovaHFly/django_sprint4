@@ -2,7 +2,7 @@ from typing import Any
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import UserPassesTestMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.db.models.query import QuerySet
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -53,14 +53,14 @@ class PostDetail(DetailView):
         return context
 
 
-class CreatePost(CreateView):
+class CreatePost(LoginRequiredMixin, CreateView):
     model = Post
     template_name = 'blog/create.html'
     form_class = PostForm
 
     def get_success_url(self) -> str:
         return reverse_lazy(
-            'blog:profile', kwargs={'username': self.request.user.username}
+            'blog:profile', kwargs={'username': self.object.author.username}
         )
 
     def form_valid(self, form: PostForm) -> HttpResponse:
