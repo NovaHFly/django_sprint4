@@ -17,7 +17,11 @@ from django.views.generic import (
 
 from blog.constants import POSTS_ON_PAGE
 from blog.forms import CommentForm, PostForm, ProfileForm
-from blog.mixins import OnlyAuthorMixin
+from blog.mixins import (
+    OnlyAuthorMixin,
+    RedirectToPostPageMixin,
+    RedirectToProfileMixin,
+)
 from blog.models import Category, Comment, Post
 
 User = get_user_model()
@@ -52,34 +56,24 @@ class PostDetail(DetailView):
         return context
 
 
-class CreatePost(LoginRequiredMixin, CreateView):
+class CreatePost(LoginRequiredMixin, RedirectToProfileMixin, CreateView):
     model = Post
     template_name = 'blog/create.html'
     form_class = PostForm
-
-    def get_success_url(self) -> str:
-        return reverse(
-            'blog:profile', kwargs={'username': self.object.author.username}
-        )
 
     def form_valid(self, form: PostForm) -> HttpResponse:
         form.instance.author = self.request.user
         return super().form_valid(form)
 
 
-class EditPost(OnlyAuthorMixin, UpdateView):
+class EditPost(OnlyAuthorMixin, RedirectToPostPageMixin, UpdateView):
     model = Post
     template_name = 'blog/create.html'
     form_class = PostForm
     pk_url_kwarg = 'post_id'
 
-    def get_success_url(self) -> str:
-        return reverse(
-            'blog:post_detail', kwargs={'post_id': self.kwargs['post_id']}
-        )
 
-
-class DeletePost(OnlyAuthorMixin, DeleteView):
+class DeletePost(OnlyAuthorMixin, RedirectToProfileMixin, DeleteView):
     model = Post
     template_name = 'blog/create.html'
     pk_url_kwarg = 'post_id'
@@ -88,11 +82,6 @@ class DeletePost(OnlyAuthorMixin, DeleteView):
         context = super().get_context_data(**kwargs)
         context['form'] = PostForm(instance=self.object)
         return context
-
-    def get_success_url(self) -> str:
-        return reverse(
-            'blog:profile', kwargs={'username': self.request.user.username}
-        )
 
 
 class ViewProfile(ListView):
@@ -171,7 +160,7 @@ def add_comment(request: HttpRequest, post_id: int) -> HttpResponse:
     return redirect('blog:post_detail', post_id=post_id)
 
 
-class EditComment(OnlyAuthorMixin, UpdateView):
+class EditComment(OnlyAuthorMixin, RedirectToPostPageMixin, UpdateView):
     model = Comment
     template_name = 'blog/comment.html'
     form_class = CommentForm
@@ -184,13 +173,8 @@ class EditComment(OnlyAuthorMixin, UpdateView):
             .filter(post=get_object_or_404(Post, id=self.kwargs['post_id']))
         )
 
-    def get_success_url(self) -> str:
-        return reverse(
-            'blog:post_detail', kwargs={'post_id': self.kwargs['post_id']}
-        )
 
-
-class DeleteComment(OnlyAuthorMixin, DeleteView):
+class DeleteComment(OnlyAuthorMixin, RedirectToPostPageMixin, DeleteView):
     model = Comment
     template_name = 'blog/comment.html'
     pk_url_kwarg = 'comment_id'
@@ -200,9 +184,4 @@ class DeleteComment(OnlyAuthorMixin, DeleteView):
             super()
             .get_queryset()
             .filter(post=get_object_or_404(Post, id=self.kwargs['post_id']))
-        )
-
-    def get_success_url(self) -> str:
-        return reverse(
-            'blog:post_detail', kwargs={'post_id': self.kwargs['post_id']}
         )
