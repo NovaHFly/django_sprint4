@@ -2,10 +2,9 @@ from typing import Any
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models.query import QuerySet
 from django.http import HttpRequest, HttpResponse
-from django.http.response import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
 from django.views.generic import (
@@ -17,20 +16,10 @@ from django.views.generic import (
 )
 
 from blog.forms import CommentForm, PostForm, ProfileForm
+from blog.mixins import OnlyAuthorMixin
 from blog.models import Category, Comment, Post
 
 User = get_user_model()
-
-
-# Mixins
-class OnlyAuthor(UserPassesTestMixin):
-    """Mixin which restricts non-author users from accessing edit page."""
-
-    def test_func(self) -> bool:
-        return self.get_object().author == self.request.user
-
-    def handle_no_permission(self) -> HttpResponseRedirect:
-        return redirect('blog:post_detail', post_id=self.kwargs['post_id'])
 
 
 class Index(ListView):
@@ -77,7 +66,7 @@ class CreatePost(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
-class EditPost(OnlyAuthor, UpdateView):
+class EditPost(OnlyAuthorMixin, UpdateView):
     model = Post
     template_name = 'blog/create.html'
     form_class = PostForm
@@ -89,7 +78,7 @@ class EditPost(OnlyAuthor, UpdateView):
         )
 
 
-class DeletePost(OnlyAuthor, DeleteView):
+class DeletePost(OnlyAuthorMixin, DeleteView):
     model = Post
     template_name = 'blog/create.html'
     pk_url_kwarg = 'post_id'
@@ -181,7 +170,7 @@ def add_comment(request: HttpRequest, post_id: int) -> HttpResponse:
     return redirect('blog:post_detail', post_id=post_id)
 
 
-class EditComment(OnlyAuthor, UpdateView):
+class EditComment(OnlyAuthorMixin, UpdateView):
     model = Comment
     template_name = 'blog/comment.html'
     form_class = CommentForm
@@ -200,7 +189,7 @@ class EditComment(OnlyAuthor, UpdateView):
         )
 
 
-class DeleteComment(OnlyAuthor, DeleteView):
+class DeleteComment(OnlyAuthorMixin, DeleteView):
     model = Comment
     template_name = 'blog/comment.html'
     pk_url_kwarg = 'comment_id'
