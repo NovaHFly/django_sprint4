@@ -6,7 +6,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models.query import QuerySet
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
-from django.urls import reverse_lazy
+from django.urls import reverse
 from django.views.generic import (
     CreateView,
     DeleteView,
@@ -57,7 +57,7 @@ class CreatePost(LoginRequiredMixin, CreateView):
     form_class = PostForm
 
     def get_success_url(self) -> str:
-        return reverse_lazy(
+        return reverse(
             'blog:profile', kwargs={'username': self.object.author.username}
         )
 
@@ -73,7 +73,7 @@ class EditPost(OnlyAuthorMixin, UpdateView):
     pk_url_kwarg = 'post_id'
 
     def get_success_url(self) -> str:
-        return reverse_lazy(
+        return reverse(
             'blog:post_detail', kwargs={'post_id': self.kwargs['post_id']}
         )
 
@@ -89,7 +89,7 @@ class DeletePost(OnlyAuthorMixin, DeleteView):
         return context
 
     def get_success_url(self) -> str:
-        return reverse_lazy(
+        return reverse(
             'blog:profile', kwargs={'username': self.request.user.username}
         )
 
@@ -184,7 +184,7 @@ class EditComment(OnlyAuthorMixin, UpdateView):
         )
 
     def get_success_url(self) -> str:
-        return reverse_lazy(
+        return reverse(
             'blog:post_detail', kwargs={'post_id': self.kwargs['post_id']}
         )
 
@@ -202,6 +202,6 @@ class DeleteComment(OnlyAuthorMixin, DeleteView):
         )
 
     def get_success_url(self) -> str:
-        return reverse_lazy(
+        return reverse(
             'blog:post_detail', kwargs={'post_id': self.kwargs['post_id']}
         )
