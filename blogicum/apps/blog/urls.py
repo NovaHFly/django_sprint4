@@ -49,16 +49,12 @@ comment_patterns = [
     ),
     path(
         'posts/<int:post_id>/edit_comment/<int:comment_id>/',
-        lambda x, post_id, comment_id: HttpResponse(
-            f'Edit comment {comment_id} at post {post_id}'
-        ),
+        views.EditComment.as_view(),
         name='edit_comment',
     ),
     path(
         'posts/<int:post_id>/delete_comment/<int:comment_id>/',
-        lambda x, post_id, comment_id: HttpResponse(
-            f'Delete comment {comment_id} from post {post_id}'
-        ),
+        views.DeleteComment.as_view(),
         name='delete_comment',
     ),
 ]

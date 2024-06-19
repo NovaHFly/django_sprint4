@@ -16,7 +16,7 @@ from django.views.generic import (
 )
 
 from blog.forms import CommentForm, PostForm, ProfileForm
-from blog.models import Category, Post
+from blog.models import Category, Comment, Post
 
 User = get_user_model()
 
@@ -160,3 +160,40 @@ def add_comment(request: HttpRequest, post_id: int) -> HttpResponse:
         comment.save()
 
     return redirect('blog:post_detail', post_id=post_id)
+
+
+class EditComment(OnlyAuthorMixin, UpdateView):
+    model = Comment
+    template_name = 'blog/comment.html'
+    form_class = CommentForm
+    pk_url_kwarg = 'comment_id'
+
+    def get_queryset(self) -> QuerySet[Any]:
+        return (
+            super()
+            .get_queryset()
+            .filter(post=get_object_or_404(Post, id=self.kwargs['post_id']))
+        )
+
+    def get_success_url(self) -> str:
+        return reverse_lazy(
+            'blog:post_detail', kwargs={'post_id': self.kwargs['post_id']}
+        )
+
+
+class DeleteComment(OnlyAuthorMixin, DeleteView):
+    model = Comment
+    template_name = 'blog/comment.html'
+    pk_url_kwarg = 'comment_id'
+
+    def get_queryset(self) -> QuerySet[Any]:
+        return (
+            super()
+            .get_queryset()
+            .filter(post=get_object_or_404(Post, id=self.kwargs['post_id']))
+        )
+
+    def get_success_url(self) -> str:
+        return reverse_lazy(
+            'blog:post_detail', kwargs={'post_id': self.kwargs['post_id']}
+        )
