@@ -157,19 +157,21 @@ class CategoryPosts(ListView):
     )
 
     def get_queryset(self) -> QuerySet[Any]:
+        self.category = get_object_or_404(
+            Category.objects.filter(is_published=True),
+            slug=self.kwargs['category_slug'],
+        )
         return (
             super()
             .get_queryset()
             .select_all_related()
-            .get_all_for_user(self.request.user)
+            .get_published()
             .filter(category__slug=self.kwargs['category_slug'])
         )
 
     def get_context_data(self, **kwargs) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
-        context['category'] = get_object_or_404(
-            Category, slug=self.kwargs['category_slug']
-        )
+        context['category'] = self.category
         return context
 
 
