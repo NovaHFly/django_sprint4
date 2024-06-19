@@ -1,6 +1,6 @@
 from django.http import HttpRequest, HttpResponse
-from django.views.generic import TemplateView
 from django.shortcuts import render
+from django.views.generic import TemplateView
 
 
 class About(TemplateView):
