@@ -30,18 +30,28 @@ class Index(ListView):
     template_name = 'blog/index.html'
     model = Post
     paginate_by = 10
-    queryset = (
-        Post.objects.select_all_related()
-        .prefetch_related('comments')
-        .get_published()
-    )
+
+    def get_queryset(self) -> QuerySet[Any]:
+        return (
+            super()
+            .get_queryset()
+            .select_all_related()
+            .get_all_for_user(self.request.user)
+        )
 
 
 class PostDetail(DetailView):
     model = Post
-    queryset = Post.objects.select_all_related().get_published()
     template_name = 'blog/detail.html'
     pk_url_kwarg = 'post_id'
+
+    def get_queryset(self) -> QuerySet[Any]:
+        return (
+            super()
+            .get_queryset()
+            .select_all_related()
+            .get_all_for_user(self.request.user)
+        )
 
     def get_context_data(self, **kwargs) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
@@ -98,16 +108,13 @@ class ViewProfile(ListView):
     template_name = 'blog/profile.html'
     model = Post
     paginate_by = 10
-    queryset = (
-        Post.objects.select_all_related()
-        .prefetch_related('comments')
-        .get_published()
-    )
 
     def get_queryset(self) -> QuerySet[Any]:
         return (
             super()
             .get_queryset()
+            .select_all_related()
+            .get_all_for_user(self.request.user)
             .filter(author__username=self.kwargs['username'])
         )
 
@@ -153,6 +160,8 @@ class CategoryPosts(ListView):
         return (
             super()
             .get_queryset()
+            .select_all_related()
+            .get_all_for_user(self.request.user)
             .filter(category__slug=self.kwargs['category_slug'])
         )
 
