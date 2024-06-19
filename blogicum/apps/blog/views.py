@@ -36,7 +36,7 @@ class Index(ListView):
             super()
             .get_queryset()
             .select_all_related()
-            .get_all_for_user(self.request.user)
+            .get_published()
         )
 
 
