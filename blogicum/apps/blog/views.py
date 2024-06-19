@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.db.models.query import QuerySet
 from django.http import HttpRequest, HttpResponse
+from django.http.response import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
 from django.views.generic import (
@@ -21,9 +22,13 @@ from blog.models import Category, Comment, Post
 User = get_user_model()
 
 
+# Mixins
 class OnlyAuthor(UserPassesTestMixin):
     def test_func(self) -> bool | None:
         return self.get_object().author == self.request.user
+
+    def handle_no_permission(self) -> HttpResponseRedirect:
+        return redirect('blog:post_detail', post_id=self.kwargs['post_id'])
 
 
 class Index(ListView):
@@ -32,12 +37,7 @@ class Index(ListView):
     paginate_by = 10
 
     def get_queryset(self) -> QuerySet[Any]:
-        return (
-            super()
-            .get_queryset()
-            .select_all_related()
-            .get_published()
-        )
+        return super().get_queryset().select_all_related().get_published()
 
 
 class PostDetail(DetailView):
