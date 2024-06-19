@@ -146,6 +146,8 @@ class Post(Publishable, ContainsCreateDate):
 
 
 class Comment(Publishable, ContainsCreateDate):
+    """A single comment under some post."""
+
     text = models.TextField(verbose_name='Текст')
     author = models.ForeignKey(
         User,
@@ -165,3 +167,6 @@ class Comment(Publishable, ContainsCreateDate):
         verbose_name = 'комментарий'
         verbose_name_plural = 'Комментарии'
         ordering = ('created_at',)
+
+    def __str__(self) -> str:
+        return f'Комментарий {self.author} к посту "{self.post.title}"'
